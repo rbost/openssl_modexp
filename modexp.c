@@ -7,6 +7,15 @@
 #define RSA_PK 0x10001L // RSA_F4 for OpenSSL
 #define MODULUS_SIZE 1024
 
+
+void BN_printf(BIGNUM* n)
+{
+    char* n_hex = BN_bn2hex(n);
+    printf("%s",n_hex);
+    
+    free(n_hex);
+}
+
 int generate_RSA_key(RSA* key, BIGNUM* phi, BIGNUM* p_1, BIGNUM* q_1)
 {
     key = RSA_new();
@@ -84,6 +93,7 @@ void iterative_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigne
     BIGNUM* tmp = BN_new();
         
     BN_CTX* ctx      = BN_CTX_new();
+    BN_set_word(r,1UL);
     
     unsigned long i;
     int ret = 0;
@@ -114,6 +124,8 @@ void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned lo
 {    
     BIGNUM* tmp = BN_new();
     BN_CTX* ctx      = BN_CTX_new();
+    
+    BN_set_word(r,1UL);
     
     unsigned long i;
     int ret = 0;
@@ -312,10 +324,10 @@ int main(void)
     //     printf("\n\n");
     // }
     
-    for(unsigned long i = 0; i < 2; ++i)
-    {
-        check_both_prime(100);
-        printf("\n\n");
-    }
+    // for(unsigned long i = 0; i < 2; ++i)
+    // {
+    //     check_both_prime(100);
+    //     printf("\n\n");
+    // }
 
 }
