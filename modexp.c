@@ -96,6 +96,7 @@ void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned lo
 
 void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
 {
+    int err = 0;
     BIGNUM* r1 = BN_new();
     BIGNUM* r2 = BN_new();
     BIGNUM* r3 = BN_new();
@@ -115,6 +116,7 @@ void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
     {
         printf("OK: r1 == r2\n");
     }else{
+        err++;
         printf("Error: r1 != r2\n");
     }
 
@@ -122,6 +124,7 @@ void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
     {
         printf("OK: r1 == r3\n");
     }else{
+        err++;
         printf("Error: r1 != r3\n");
     }
 
@@ -129,7 +132,21 @@ void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
     {
         printf("OK: r2 == r3\n");
     }else{
+        err++;
         printf("Error: r2 != r3\n");
+    }
+
+    if(err > 0){
+        char* n_hex = BN_bn2hex(n);
+        char* x_hex = BN_bn2hex(x);
+
+        printf("Inconsistency in the modular exponentiation\n");
+        printf("Modulus (hex):\n");
+        printf("%s",n_hex);
+        printf("\nOperand (hex):\n");
+        printf("%s",x_hex);
+        printf("\n");
+        
     }
 
     BN_free(r1);
@@ -180,8 +197,9 @@ int main(void)
     check_fixed_string(100);
     
     
-    for(unsigned long i = 0; i < 100; ++i)
+    for(unsigned long i = 0; i < 10; ++i)
     {
         check_random(100);
+        printf("\n\n");
     }
 }
