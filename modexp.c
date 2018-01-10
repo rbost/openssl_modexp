@@ -60,7 +60,20 @@ void modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp
     
     BN_set_word(e, exp);
     
-    BN_mod_exp(r, x, e, n, ctx);
+    int ret = BN_mod_exp(r, x, e, n, ctx);
+    
+    if(!ret)
+    {
+        printf("Err in modexp\n");
+    }
+    
+    char* r_hex = BN_bn2hex(r);
+
+    printf("Result (modexp, hex):\n");
+    printf("%s",r_hex);
+    printf("\n");
+    
+    free(r_hex);
     
     BN_CTX_free(ctx);
     BN_free(e);
@@ -68,29 +81,70 @@ void modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp
 
 void iterative_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp)
 {    
+    BIGNUM* tmp = BN_new();
+        
     BN_CTX* ctx      = BN_CTX_new();
     
     unsigned long i;
+    int ret = 0;
     for(i = 0 ; i < exp ; i++)
     {
-        BN_mod_mul(r,r,x,n,ctx);
+        ret = BN_mod_mul(tmp,r,x,n,ctx);
+        if(!ret)
+        {
+            printf("Err in BN_mod_mul\n");
+            break;
+        }
+        BN_swap(tmp,r);
     }
     
+    char* r_hex = BN_bn2hex(r);
+
+    printf("Result (iterative modexp, hex):\n");
+    printf("%s",r_hex);
+    printf("\n");
+    
+    free(r_hex);
+    
     BN_CTX_free(ctx);
+    BN_free(tmp);
 }
 
 void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp)
 {    
+    BIGNUM* tmp = BN_new();
     BN_CTX* ctx      = BN_CTX_new();
     
     unsigned long i;
+    int ret = 0;
+    
     for(i = 0 ; i < exp ; i++)
     {
-        BN_mul(r,r,x,ctx);
-        BN_mod(r,r,n,ctx);
+        ret = BN_mul(tmp,r,x,ctx);
+        if(!ret)
+        {
+            printf("Err in BN_mul\n");
+            break;
+        }
+        
+        ret = BN_mod(r,tmp,n,ctx);
+        if(!ret)
+        {
+            printf("Err in BN_mod\n");
+            break;
+        }
     }
     
+    char* r_hex = BN_bn2hex(r);
+
+    printf("Result (naive modexp, hex):\n");
+    printf("%s",r_hex);
+    printf("\n");
+    
+    free(r_hex);
+    
     BN_CTX_free(ctx);
+    BN_free(tmp);
 }
 
 
@@ -147,6 +201,8 @@ void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
         printf("%s",x_hex);
         printf("\n");
         
+        free(n_hex);
+        free(x_hex);
     }
 
     BN_free(r1);
@@ -176,6 +232,58 @@ void check_random(unsigned long e)
     BN_free(x);
 }
  
+void check_prime_modulus(unsigned long e)
+{
+    BIGNUM* x = BN_new();
+    BIGNUM* n = BN_new();
+    
+    if(x == NULL){
+        printf("Error\n");
+    }
+    if(n == NULL){
+        printf("Error\n");
+    }
+          
+    BN_generate_prime_ex(n, MODULUS_SIZE, 0, NULL, NULL, NULL);
+    
+    BN_rand_range(x, n);
+    
+    test(x,n,e);
+
+    BN_free(n);
+    BN_free(x);
+}
+
+
+void check_both_prime(unsigned long e)
+{
+    BIGNUM* x = BN_new();
+    BIGNUM* n = BN_new();
+    
+    if(x == NULL){
+        printf("Error\n");
+    }
+    if(n == NULL){
+        printf("Error\n");
+    }
+          
+    BN_generate_prime_ex(n, MODULUS_SIZE, 0, NULL, NULL, NULL);
+    BN_generate_prime_ex(x, MODULUS_SIZE, 0, NULL, NULL, NULL);
+    
+    // make sure that n > x
+    if(BN_cmp(n,x) < 0)
+    {
+        BIGNUM* tmp = x;
+        x = n;
+        n = tmp;
+    }
+        
+    test(x,n,e);
+
+    BN_free(n);
+    BN_free(x);
+}
+ 
 void check_fixed_string(unsigned long e)
 {
     BIGNUM* x = BN_new();
@@ -195,11 +303,19 @@ void check_fixed_string(unsigned long e)
 int main(void)
 {
     check_fixed_string(100);
+    printf("\n\n");
     
     
-    for(unsigned long i = 0; i < 10; ++i)
+    // for(unsigned long i = 0; i < 10; ++i)
+    // {
+    //     check_random(100);
+    //     printf("\n\n");
+    // }
+    
+    for(unsigned long i = 0; i < 2; ++i)
     {
-        check_random(100);
+        check_both_prime(100);
         printf("\n\n");
     }
+
 }
