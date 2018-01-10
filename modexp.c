@@ -8,7 +8,7 @@
 #define MODULUS_SIZE 512
 
 
-void BN_printf(BIGNUM* n)
+void BN_printf(const BIGNUM* n)
 {
     char* n_hex = BN_bn2hex(n);
     printf("%s",n_hex);
@@ -41,13 +41,11 @@ void modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp
         printf("Err in modexp\n");
     }
     
-    char* r_hex = BN_bn2hex(r);
 
     printf("Result (modexp, hex):\n");
-    printf("%s",r_hex);
+    BN_printf(r);
     printf("\n");
     
-    free(r_hex);
     
     BN_CTX_free(ctx);
     BN_free(e);
@@ -73,14 +71,10 @@ void iterative_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigne
         BN_swap(tmp,r);
     }
     
-    char* r_hex = BN_bn2hex(r);
-
     printf("Result (iterative modexp, hex):\n");
-    printf("%s",r_hex);
+    BN_printf(r);
     printf("\n");
-    
-    free(r_hex);
-    
+        
     BN_CTX_free(ctx);
     BN_free(tmp);
 }
@@ -112,14 +106,10 @@ void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned lo
         }
     }
     
-    char* r_hex = BN_bn2hex(r);
-
     printf("Result (naive modexp, hex):\n");
-    printf("%s",r_hex);
+    BN_printf(r);
     printf("\n");
-    
-    free(r_hex);
-    
+        
     BN_CTX_free(ctx);
     BN_free(tmp);
 }
@@ -168,18 +158,12 @@ void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
     }
 
     if(err > 0){
-        char* n_hex = BN_bn2hex(n);
-        char* x_hex = BN_bn2hex(x);
-
         printf("Inconsistency in the modular exponentiation\n");
         printf("Modulus (hex):\n");
-        printf("%s",n_hex);
+        BN_printf(n);
         printf("\nOperand (hex):\n");
-        printf("%s",x_hex);
+        BN_printf(x);
         printf("\n");
-        
-        free(n_hex);
-        free(x_hex);
     }
 
     BN_free(r1);
