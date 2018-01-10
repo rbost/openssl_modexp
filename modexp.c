@@ -43,16 +43,12 @@ int generate_RSA_key(RSA* key, BIGNUM* phi, BIGNUM* p_1, BIGNUM* q_1)
 }
 
 void generate_random_even(BIGNUM* n)
-{
-    n = BN_new();
-    
+{    
     // generate an odd number of size exactly MODULUS_SIZE bits
     BN_rand(n, MODULUS_SIZE, 1, 1);
     
     // make n even
     BN_add_word(n,1UL);
-    
-    return;
 }
 
 
@@ -97,52 +93,6 @@ void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned lo
     BN_CTX_free(ctx);
 }
 
-
-void test_random(unsigned long e)
-{
-    BIGNUM* x = BN_new();
-    BIGNUM* n = BN_new();
-
-    BIGNUM* r1 = BN_new();
-    BIGNUM* r2 = BN_new();
-    BIGNUM* r3 = BN_new();
-
-    generate_random_even(n);
-
-    if(BN_is_odd(n))
-    {
-        printf("Modulus is ODD\n");
-    }else{
-        printf("Modulus is EVEN\n");
-    }
-
-    BN_rand_range(x, n);
-
-
-    modexp(r1,x,n,e);
-    iterative_modexp(r2,x,n,e);
-    naive_modexp(r3,x,n,e);
-
-    if(BN_cmp(r1,r2) == 0)
-    {
-        printf("Same results!\n");
-    }else{
-        printf("Different results!\n");
-    }
-
-    if(BN_cmp(r1,r3) == 0)
-    {
-        printf("Same results!\n");
-    }else{
-        printf("Different results!\n");
-    }
-
-    BN_free(r1);
-    BN_free(r2);
-    BN_free(r3);
-    BN_free(n);
-    BN_free(x);
-}
 
 void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
 {
@@ -203,8 +153,8 @@ void check_random(unsigned long e)
  
 void check_fixed_string(unsigned long e)
 {
-    BIGNUM* x; // = BN_new();
-    BIGNUM* n; // = BN_new();
+    BIGNUM* x = BN_new();
+    BIGNUM* n = BN_new();
 
 
     BN_hex2bn(&n, "EE9C3A7E8DABBD38278405E85516172987DFAAAAF0A89B372A301A77B2BAD9339C89B94D73D8007B8152A0EACFAFE31251860F624F78BE87E2CC508AAB7CD9AE524C7E1B3E02A3F19F518B101FF971231B175594D5174EDBA3D1C837D445E090FE2EDB7CEB106CE455E0300AFC23FF01E9A94C6C43B4D86156FD0296354B83E4");
