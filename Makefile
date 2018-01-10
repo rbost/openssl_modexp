@@ -1,6 +1,5 @@
 TARGET = modexp
 LIBS = -lcrypto
-CC = gcc
 CFLAGS = -g -Wall
 LINKFLAGS =
 
