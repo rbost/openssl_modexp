@@ -1,0 +1,9 @@
+os: osx
+
+before_install:
+    - brew update
+    - brew install openssl
+
+script:
+    - make
+    - ./modexp
