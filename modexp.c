@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-
 #include <openssl/crypto.h>
 #include <openssl/rsa.h>
 #include <openssl/bn.h>
@@ -99,7 +98,7 @@ void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned lo
 }
 
 
-void test(unsigned long e)
+void test_random(unsigned long e)
 {
     BIGNUM* x = BN_new();
     BIGNUM* n = BN_new();
@@ -109,17 +108,17 @@ void test(unsigned long e)
     BIGNUM* r3 = BN_new();
 
     generate_random_even(n);
-    
+
     if(BN_is_odd(n))
     {
         printf("Modulus is ODD\n");
     }else{
         printf("Modulus is EVEN\n");
     }
-    
+
     BN_rand_range(x, n);
-    
-    
+
+
     modexp(r1,x,n,e);
     iterative_modexp(r2,x,n,e);
     naive_modexp(r3,x,n,e);
@@ -145,31 +144,18 @@ void test(unsigned long e)
     BN_free(x);
 }
 
-void test_fixed_string(unsigned long e)
+void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
 {
-    BIGNUM* x; // = BN_new();
-    BIGNUM* n; // = BN_new();
-
     BIGNUM* r1 = BN_new();
     BIGNUM* r2 = BN_new();
     BIGNUM* r3 = BN_new();
-
-    // generate_random_even(n);
     
-    BN_hex2bn(&n, "EE9C3A7E8DABBD38278405E85516172987DFAAAAF0A89B372A301A77B2BAD9339C89B94D73D8007B8152A0EACFAFE31251860F624F78BE87E2CC508AAB7CD9AE524C7E1B3E02A3F19F518B101FF971231B175594D5174EDBA3D1C837D445E090FE2EDB7CEB106CE455E0300AFC23FF01E9A94C6C43B4D86156FD0296354B83E4");
-        
-    BN_hex2bn(&x, "81222C5A60105691B5FC4EB69E820161B2D40D3B928F7C9962AECC7B58579F0D866BCC637075BB9CA0CA2528A5704C726B4ED57CB1A8FD89DA0B2B3200CCFC1C0395A231F4F72AC151775CC7C98F711E4223729D399D83BD7195E5F234762426C5B610EF8A62FCCB3CC9E5A51BB97CAEAA0FEED373E46BB5D67C22B1A552CCFFC84F702A8F061777C5BB3D4EE97663E2C337E771A57014AC2FB2B5034C5D3B2E81629D6C54AB0CE54D9805F331779D37BA6F80FDCF1ABD82B7FCEDA98D81303C56C348350030B879414EB34AC41D09C885A0818289237C394CD95932D956F624E667A0856C63380DE73267B844B7BC01B9DA7D7E3FEBBB1577A1862F1FA8FF01");
-        
-        
     if(BN_is_odd(n))
     {
         printf("Modulus is ODD\n");
     }else{
         printf("Modulus is EVEN\n");
-    }
-    
-    // BN_rand_range(x, n);
-    
+    }    
     
     modexp(r1,x,n,e);
     iterative_modexp(r2,x,n,e);
@@ -192,16 +178,52 @@ void test_fixed_string(unsigned long e)
     BN_free(r1);
     BN_free(r2);
     BN_free(r3);
+}
+
+void check_random(unsigned long e)
+{
+    BIGNUM* x = BN_new();
+    BIGNUM* n = BN_new();
+    
+    if(x == NULL){
+        printf("Error\n");
+    }
+    if(n == NULL){
+        printf("Error\n");
+    }
+            
+    generate_random_even(n);
+    BN_rand_range(x, n);
+    
+    test(x,n,e);
+
+    BN_free(n);
+    BN_free(x);
+}
+ 
+void check_fixed_string(unsigned long e)
+{
+    BIGNUM* x; // = BN_new();
+    BIGNUM* n; // = BN_new();
+
+
+    BN_hex2bn(&n, "EE9C3A7E8DABBD38278405E85516172987DFAAAAF0A89B372A301A77B2BAD9339C89B94D73D8007B8152A0EACFAFE31251860F624F78BE87E2CC508AAB7CD9AE524C7E1B3E02A3F19F518B101FF971231B175594D5174EDBA3D1C837D445E090FE2EDB7CEB106CE455E0300AFC23FF01E9A94C6C43B4D86156FD0296354B83E4");
+        
+    BN_hex2bn(&x, "81222C5A60105691B5FC4EB69E820161B2D40D3B928F7C9962AECC7B58579F0D866BCC637075BB9CA0CA2528A5704C726B4ED57CB1A8FD89DA0B2B3200CCFC1C0395A231F4F72AC151775CC7C98F711E4223729D399D83BD7195E5F234762426C5B610EF8A62FCCB3CC9E5A51BB97CAEAA0FEED373E46BB5D67C22B1A552CCFFC84F702A8F061777C5BB3D4EE97663E2C337E771A57014AC2FB2B5034C5D3B2E81629D6C54AB0CE54D9805F331779D37BA6F80FDCF1ABD82B7FCEDA98D81303C56C348350030B879414EB34AC41D09C885A0818289237C394CD95932D956F624E667A0856C63380DE73267B844B7BC01B9DA7D7E3FEBBB1577A1862F1FA8FF01");
+        
+    test(x,n,e);        
+    
     BN_free(n);
     BN_free(x);
 }
 
 int main(void)
 {
-    test_fixed_string(100);
+    check_fixed_string(100);
+    
     
     for(unsigned long i = 0; i < 100; ++i)
     {
-        // test(100);
+        check_random(100);
     }
 }
