@@ -2,6 +2,7 @@ TARGET = modexp
 LIBS = -lcrypto
 CC = gcc
 CFLAGS = -g -Wall
+LINKFLAGS =
 
 .PHONY: default all clean
 
@@ -20,7 +21,7 @@ OPENSSL_LIB ?= /usr/local/opt/openssl/lib/
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@ -L$(OPENSSL_LIB) -lcrypto
+	$(CC) $(OBJECTS) -Wall $(LINKFLAGS) $(LIBS) -o $@ -L$(OPENSSL_LIB) -lcrypto
 
 clean:
 	-rm -f *.o

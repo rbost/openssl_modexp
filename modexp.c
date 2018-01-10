@@ -113,16 +113,23 @@ void test(const BIGNUM* x, const BIGNUM* n, unsigned long e)
 
     if(BN_cmp(r1,r2) == 0)
     {
-        printf("Same results!\n");
+        printf("OK: r1 == r2\n");
     }else{
-        printf("Different results!\n");
+        printf("Error: r1 != r2\n");
     }
 
     if(BN_cmp(r1,r3) == 0)
     {
-        printf("Same results!\n");
+        printf("OK: r1 == r3\n");
     }else{
-        printf("Different results!\n");
+        printf("Error: r1 != r3\n");
+    }
+
+    if(BN_cmp(r2,r3) == 0)
+    {
+        printf("OK: r2 == r3\n");
+    }else{
+        printf("Error: r2 != r3\n");
     }
 
     BN_free(r1);
@@ -141,8 +148,9 @@ void check_random(unsigned long e)
     if(n == NULL){
         printf("Error\n");
     }
-            
-    generate_random_even(n);
+          
+    BN_rand(n, MODULUS_SIZE, 1, 0);  
+    // generate_random_even(n);
     BN_rand_range(x, n);
     
     test(x,n,e);
