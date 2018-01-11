@@ -1,5 +1,6 @@
 TARGET = modexp
 LIBS = -lcrypto
+CC = gcc
 CFLAGS = -g -Wall
 LINKFLAGS =
 
@@ -11,8 +12,8 @@ all: default
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
 HEADERS = $(wildcard *.h)
 
-OPENSSL_INCLUDE ?= /usr/local/Cellar/openssl/1.0.2h_1/include/
-OPENSSL_LIB ?= /usr/local/Cellar/openssl/1.0.2h_1/lib/
+OPENSSL_INCLUDE ?= /usr/local/opt/openssl/include/
+OPENSSL_LIB ?= /usr/local/opt/openssl/lib/
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@ -I$(OPENSSL_INCLUDE)
