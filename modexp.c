@@ -37,7 +37,7 @@ void modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp
     
     int ret = BN_mod_exp(r, x, e, n, ctx);
     
-    if(!ret)
+    if(ret != 1)
     {
         printf("Err in modexp\n");
         ERR_print_errors_fp(stdout);
@@ -66,7 +66,7 @@ void iterative_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigne
     for(i = 0 ; i < exp ; i++)
     {
         ret = BN_mod_mul(tmp,r,x,n,ctx);
-        if(!ret)
+        if(ret != 1)
         {
             printf("Err in BN_mod_mul\n");
             break;
@@ -95,14 +95,14 @@ void naive_modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned lo
     for(i = 0 ; i < exp ; i++)
     {
         ret = BN_mul(tmp,r,x,ctx);
-        if(!ret)
+        if(ret != 1)
         {
             printf("Err in BN_mul\n");
             break;
         }
         
         ret = BN_mod(r,tmp,n,ctx);
-        if(!ret)
+        if(ret != 1)
         {
             printf("Err in BN_mod\n");
             break;
@@ -258,9 +258,9 @@ void check_fixed_string(unsigned long e)
     //
     // BN_hex2bn(&x, "81222C5A60105691B5FC4EB69E820161B2D40D3B928F7C9962AECC7B58579F0D866BCC637075BB9CA0CA2528A5704C726B4ED57CB1A8FD89DA0B2B3200CCFC1C0395A231F4F72AC151775CC7C98F711E4223729D399D83BD7195E5F234762426C5B610EF8A62FCCB3CC9E5A51BB97CAEAA0FEED373E46BB5D67C22B1A552CCFFC84F702A8F061777C5BB3D4EE97663E2C337E771A57014AC2FB2B5034C5D3B2E81629D6C54AB0CE54D9805F331779D37BA6F80FDCF1ABD82B7FCEDA98D81303C56C348350030B879414EB34AC41D09C885A0818289237C394CD95932D956F624E667A0856C63380DE73267B844B7BC01B9DA7D7E3FEBBB1577A1862F1FA8FF01");
 
-    BN_hex2bn(&n, "E8F1D7B52CEC49B6A8BC0F3F3FEAF130FA3895ABD977A8343DB2166532812148");
+    BN_hex2bn(&n, "F451385DD85A623877EC1CE1E798135744A52E7C093E0CC9BD7FEE5C1F5D6260");
         
-    BN_hex2bn(&x, "C5DEBC3455A13AD6FBD4A44F2DD4D378B1795CE61E462AF9868D08B3AA578B6A8B94D122EC2D368DC31524D23D2E19481172A8184FA4EBBFC21F3EF41AB78081");
+    BN_hex2bn(&x, "76260730E68FE876404384DEEBB8EF08A17FB94F066072AE9D43C5A00EF9F1FC5A0A2661EBC03F1E67A34EEBEEF6DA85DB1A60D566EFB24A8A75500B32A6C8C1");
         
     test(x,n,e);        
     
@@ -286,7 +286,25 @@ int generate_extended_RSA_key(RSA* key, BIGNUM* phi, BIGNUM* p_1, BIGNUM* q_1)
         BN_free(bne);
         return -1;
     }
-
+    
+    if(BN_get_flags(key->p, BN_FLG_CONSTTIME) != 0)
+    {
+        printf("BN_FLG_CONSTTIME set for p\n");
+    }
+    
+    if(BN_get_flags(key->q, BN_FLG_CONSTTIME) != 0)
+    {
+        printf("BN_FLG_CONSTTIME set for q\n");
+    }
+    
+    if(BN_get_flags(key->d, BN_FLG_CONSTTIME) != 0)
+    {
+        printf("BN_FLG_CONSTTIME set for d\n");
+    }else{
+        printf("BN_FLG_CONSTTIME NOT set for d\n");
+    }
+    
+    
     // initialize the useful variables
     phi = BN_new();
     BN_copy(p_1,key->p);
@@ -294,6 +312,16 @@ int generate_extended_RSA_key(RSA* key, BIGNUM* phi, BIGNUM* p_1, BIGNUM* q_1)
     
     BN_sub_word(p_1, 1);
     BN_sub_word(q_1, 1);
+
+    if(BN_get_flags(p_1, BN_FLG_CONSTTIME) != 0)
+    {
+        printf("BN_FLG_CONSTTIME set for p-1\n");
+    }
+
+    if(BN_get_flags(q_1, BN_FLG_CONSTTIME) != 0)
+    {
+        printf("BN_FLG_CONSTTIME set for q-1\n");
+    }
 
     BN_CTX* ctx = BN_CTX_new();
 
@@ -380,7 +408,7 @@ void test_permutation()
     int ret = multiple_inverse_permutation(x,rsa, p_1, q_1, 100);
     
     if (ret > 0){
-        printf("\n===========================================================\n");
+        // printf("\n===========================================================\n");
         printf("Error in the exponent computation:\n");
 
         printf("Key:\n");
@@ -419,10 +447,12 @@ int main(void)
 
     for(unsigned long i = 0; i < 20; ++i){
         // check_fixed_string(100);
+        printf("\n===========================================================\n");
+        printf("Iteration %lu\n",i);
         test_permutation();
     }
     
-    // check_fixed_string(100);
+    check_fixed_string(100);
     
     // for(unsigned long i = 0; i < 10; ++i)
     // {

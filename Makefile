@@ -21,7 +21,7 @@ OPENSSL_LIB ?= /usr/local/opt/openssl/lib/
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall $(LINKFLAGS) $(LIBS) -o $@ -L$(OPENSSL_LIB) -lcrypto
+	$(CC) $(OBJECTS) -Wall $(LINKFLAGS) $(LIBS) -o $@ -L$(OPENSSL_LIB)
 
 clean:
 	-rm -f *.o
