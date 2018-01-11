@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <openssl/crypto.h>
+#include <openssl/err.h>
 #include <openssl/rsa.h>
 #include <openssl/bn.h>
 
@@ -311,16 +312,26 @@ int multiple_inverse_permutation(BIGNUM* x, const RSA* rsa, const BIGNUM* p_1, c
     BN_set_word(bn_order, order);
 
     int ret_p = 0, ret_q = 0;
+    int err = 0;
         
     ret_p = BN_mod_exp(d_p, rsa->d, bn_order, p_1, ctx);
-    ret_q = BN_mod_exp(d_q, rsa->d, bn_order, q_1, ctx);
- 
-    int err = 0;
-    if (BN_is_zero(d_p)) {
+    if (ret_p != 1) {
+        printf("BN_mod_exp(d, bn_order, p_1) failed, should not happen\n");
+        ERR_print_errors_fp(stderr);
+        ERR_clear_error();
+        err++;
+    } else if (BN_is_zero(d_p)) {
         printf("d_p == 0, should not happen\n");
         err++;
     }
-    if (BN_is_zero(d_q)) {
+
+    ret_q = BN_mod_exp(d_q, rsa->d, bn_order, q_1, ctx);
+    if (ret_q != 1) {
+        printf("BN_mod_exp(d, bn_order, q_1) failed, should not happen\n");
+        ERR_print_errors_fp(stderr);
+        ERR_clear_error();
+        err++;
+    } else if (BN_is_zero(d_q)) {
         printf("d_q == 0, should not happen\n");
         err++;
     }
@@ -402,6 +413,8 @@ void test_permutation()
 
 int main(void)
 {
+    ERR_load_crypto_strings();
+
     for(unsigned long i = 0; i < 20; ++i){
         // check_fixed_string(100);
         test_permutation();
