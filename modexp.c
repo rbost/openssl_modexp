@@ -40,6 +40,8 @@ void modexp(BIGNUM* r, const BIGNUM* x, const BIGNUM* n, const unsigned long exp
     if(!ret)
     {
         printf("Err in modexp\n");
+        ERR_print_errors_fp(stdout);
+        ERR_clear_error();
     }
     
 
@@ -317,7 +319,7 @@ int multiple_inverse_permutation(BIGNUM* x, const RSA* rsa, const BIGNUM* p_1, c
     ret_p = BN_mod_exp(d_p, rsa->d, bn_order, p_1, ctx);
     if (ret_p != 1) {
         printf("BN_mod_exp(d, bn_order, p_1) failed, should not happen\n");
-        ERR_print_errors_fp(stderr);
+        ERR_print_errors_fp(stdout);
         ERR_clear_error();
         err++;
     } else if (BN_is_zero(d_p)) {
@@ -328,7 +330,7 @@ int multiple_inverse_permutation(BIGNUM* x, const RSA* rsa, const BIGNUM* p_1, c
     ret_q = BN_mod_exp(d_q, rsa->d, bn_order, q_1, ctx);
     if (ret_q != 1) {
         printf("BN_mod_exp(d, bn_order, q_1) failed, should not happen\n");
-        ERR_print_errors_fp(stderr);
+        ERR_print_errors_fp(stdout);
         ERR_clear_error();
         err++;
     } else if (BN_is_zero(d_q)) {
